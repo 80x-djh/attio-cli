@@ -133,7 +133,7 @@ registerConfig(program);
 registerOpen(program);
 registerInit(program);
 
-// Smart bare invocation: nudge unconfigured users toward `attio init`
+// Smart bare invocation: always show help, nudge unconfigured users toward `attio init`
 program.action(() => {
   if (!isConfigured()) {
     console.error('');
@@ -145,9 +145,8 @@ program.action(() => {
     console.error('');
     console.error('  to connect to your Attio workspace.');
     console.error('');
-  } else {
-    program.outputHelp();
   }
+  program.outputHelp();
 });
 
 // Parse and run

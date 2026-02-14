@@ -18,6 +18,27 @@ attio people list --limit 5
 
 You'll need an API key from [Attio Developer Settings](https://app.attio.com/settings/developers). `attio init` walks you through the rest.
 
+## Examples
+
+```bash
+# List companies, filter by name
+attio companies list --filter 'name~Acme'
+
+# Search for a person
+attio people search "Jane"
+
+# Create a company and get back just the ID
+attio companies create --set name="Acme" --set domains='["acme.com"]' -q
+
+# Get a record as JSON and pipe to jq
+attio companies list --json | jq '.[].values.name[0].value'
+
+# Export all companies to CSV
+attio companies list --all --csv > companies.csv
+```
+
+See [Scripting Examples](#scripting-examples) for more advanced workflows (bulk updates, chaining commands, etc.).
+
 For non-interactive environments (CI, scripts), use any of:
 
 ```bash
@@ -221,7 +242,13 @@ attio records list companies --filter 'name^TEST_' --json -q | \
 
 ## Why CLI over MCP for Agents
 
-While MCP tools let AI agents call APIs through natural language, a CLI is often the better choice for automated workflows. CLI commands are deterministic -- the same input always produces the same output, with no LLM interpretation layer to introduce variance. They are cheaper because they skip the token cost of encoding tool schemas and parsing responses. They are faster since there is no round-trip through a language model. And they are composable: you can pipe `attio` output into `jq`, `grep`, `xargs`, or any other Unix tool, building complex workflows from simple parts that are easy to debug and reproduce.
+While MCP tools work well, a CLI is often the better choice for AI agent workflows:
+
+- **Simpler** — a single bash command vs. structured tool-call JSON
+- **Self-documenting** — `attio --help` and `attio companies --help` let agents discover capabilities without external docs
+- **LLM-native** — language models are heavily RL'd on command-line usage; they generate CLI invocations more reliably than tool-call schemas
+- **Composable** — pipe `attio` output into `jq`, `grep`, `xargs`, or any other Unix tool, building complex workflows from simple parts
+- **Cheaper** — MCP servers load all tool schemas as input tokens on every LLM call (14,521 tokens for Attio's 30 tools), even if only one tool is used. A CLI just needs the Bash tool schema (~200 tokens). See [benchmarks/REPORT.md](benchmarks/REPORT.md) for detailed cost comparisons.
 
 ## Contributing
 

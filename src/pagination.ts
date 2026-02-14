@@ -15,7 +15,7 @@ export async function paginate<T>(
   }
 
   const allResults: T[] = [];
-  let offset = 0;
+  let offset = options.offset;
   const pageSize = 500;
 
   while (true) {

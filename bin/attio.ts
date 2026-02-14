@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 import { program } from 'commander';
 import chalk from 'chalk';
+import { readFileSync } from 'fs';
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
 import { AttioApiError, AttioAuthError, AttioRateLimitError } from '../src/errors.js';
 
 // Import all command registration functions
@@ -20,6 +23,20 @@ import { register as registerConfig } from '../src/commands/config.js';
 import { register as registerOpen } from '../src/commands/open.js';
 import { register as registerInit } from '../src/commands/init.js';
 import { isConfigured } from '../src/config.js';
+
+function loadCliVersion(): string {
+  try {
+    const here = dirname(fileURLToPath(import.meta.url));
+    const packagePath = join(here, '..', 'package.json');
+    const packageJson = JSON.parse(readFileSync(packagePath, 'utf-8'));
+    if (typeof packageJson.version === 'string' && packageJson.version.length > 0) {
+      return packageJson.version;
+    }
+  } catch {
+    // Fall through to static default.
+  }
+  return '0.2.0';
+}
 
 // Global error handler
 function handleError(err: unknown): never {
@@ -71,7 +88,7 @@ function handleError(err: unknown): never {
 // Setup program
 program
   .name('attio')
-  .version('0.1.0')
+  .version(loadCliVersion())
   .description('CLI for the Attio CRM API. Built for scripts, agents, and humans who prefer terminals.')
   .option('--api-key <key>', 'Override API key')
   .option('--json', 'Force JSON output')

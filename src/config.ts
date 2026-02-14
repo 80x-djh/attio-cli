@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'fs';
+import { existsSync, readFileSync, writeFileSync, mkdirSync, chmodSync } from 'fs';
 import { join } from 'path';
 import { homedir } from 'os';
 import * as dotenv from 'dotenv';
@@ -22,8 +22,18 @@ function loadConfig(): Config {
 }
 
 function saveConfig(config: Config): void {
-  mkdirSync(CONFIG_DIR, { recursive: true });
-  writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2));
+  mkdirSync(CONFIG_DIR, { recursive: true, mode: 0o700 });
+  try {
+    chmodSync(CONFIG_DIR, 0o700);
+  } catch {
+    // Ignore mode errors on filesystems that do not support POSIX permissions.
+  }
+  writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2), { mode: 0o600 });
+  try {
+    chmodSync(CONFIG_FILE, 0o600);
+  } catch {
+    // Ignore mode errors on filesystems that do not support POSIX permissions.
+  }
 }
 
 /**

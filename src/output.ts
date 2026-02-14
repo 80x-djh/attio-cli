@@ -4,6 +4,50 @@ import { createInterface } from 'readline';
 
 export type OutputFormat = 'json' | 'table' | 'csv' | 'quiet';
 
+const ID_KEY_PRIORITY = [
+  'record_id',
+  'entry_id',
+  'task_id',
+  'note_id',
+  'comment_id',
+  'thread_id',
+  'workspace_member_id',
+  'list_id',
+  'object_id',
+  'webhook_id',
+  'workspace_id',
+] as const;
+
+function toIdString(value: unknown): string {
+  if (typeof value === 'string' || typeof value === 'number' || typeof value === 'bigint') {
+    const id = String(value);
+    return id.length > 0 ? id : '';
+  }
+  return '';
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+export function extractOutputId(raw: unknown): string {
+  const direct = toIdString(raw);
+  if (direct) return direct;
+  if (!isRecord(raw)) return '';
+
+  for (const key of ID_KEY_PRIORITY) {
+    const id = toIdString(raw[key]);
+    if (id) return id;
+  }
+
+  for (const value of Object.values(raw)) {
+    const fallback = toIdString(value);
+    if (fallback) return fallback;
+  }
+
+  return '';
+}
+
 export function detectFormat(opts: { json?: boolean; table?: boolean; csv?: boolean; quiet?: boolean }): OutputFormat {
   if (opts.quiet) return 'quiet';
   if (opts.json) return 'json';
@@ -22,8 +66,8 @@ export function outputList(items: Record<string, any>[], opts: {
 
   if (format === 'quiet') {
     for (const item of items) {
-      const raw = typeof item === 'string' ? item : (item[idField] || '');
-      const id = typeof raw === 'object' && raw !== null ? Object.values(raw)[0] : raw;
+      const raw = typeof item === 'string' ? item : (item[idField] ?? '');
+      const id = extractOutputId(raw);
       if (id) console.log(id);
     }
     return;
@@ -72,8 +116,8 @@ export function outputSingle(item: Record<string, any>, opts: {
   idField?: string;
 }): void {
   if (opts.format === 'quiet') {
-    const raw = item[opts.idField || 'id'] || '';
-    const id = typeof raw === 'object' && raw !== null ? Object.values(raw)[0] : raw;
+    const raw = item[opts.idField || 'id'] ?? '';
+    const id = extractOutputId(raw);
     console.log(id || '');
     return;
   }

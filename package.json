@@ -12,7 +12,8 @@
   ],
   "scripts": {
     "build": "tsup",
-    "dev": "tsx bin/attio.ts"
+    "dev": "tsx bin/attio.ts",
+    "test": "node --import tsx --test tests/**/*.test.ts"
   },
   "dependencies": {
     "commander": "^12.0.0",

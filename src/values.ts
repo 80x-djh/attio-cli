@@ -49,6 +49,25 @@ export function flattenRecord(record: any): Record<string, string> {
   return flat;
 }
 
+function stripWrappingQuotes(raw: string): string {
+  if (
+    (raw.startsWith('"') && raw.endsWith('"')) ||
+    (raw.startsWith('\'') && raw.endsWith('\''))
+  ) {
+    return raw.slice(1, -1);
+  }
+  return raw;
+}
+
+function parseScalar(raw: string): any {
+  const normalized = stripWrappingQuotes(raw.trim());
+  if (normalized === 'true') return true;
+  if (normalized === 'false') return false;
+  if (normalized === 'null') return null;
+  if (/^-?\d+(\.\d+)?$/.test(normalized)) return Number(normalized);
+  return normalized;
+}
+
 export function parseSets(sets: string[]): Record<string, any> {
   const values: Record<string, any> = {};
   for (const set of sets) {
@@ -56,14 +75,37 @@ export function parseSets(sets: string[]): Record<string, any> {
     if (eqIdx === -1) throw new Error(`Invalid --set format: "${set}". Expected: key=value`);
     const key = set.slice(0, eqIdx).trim();
     const raw = set.slice(eqIdx + 1).trim();
-    if (raw === 'true') { values[key] = true; continue; }
-    if (raw === 'false') { values[key] = false; continue; }
-    if (/^-?\d+(\.\d+)?$/.test(raw)) { values[key] = Number(raw); continue; }
+
+    if (raw.startsWith('{') && raw.endsWith('}')) {
+      try {
+        values[key] = JSON.parse(raw);
+        continue;
+      } catch {
+        // Fall back to scalar parsing if this is not valid JSON.
+      }
+    }
+
     if (raw.startsWith('[') && raw.endsWith(']')) {
-      values[key] = raw.slice(1, -1).split(',').map(s => s.trim());
+      try {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          values[key] = parsed;
+          continue;
+        }
+      } catch {
+        // Fall back to simple comma parsing for shorthand like [a,b].
+      }
+
+      const inner = raw.slice(1, -1).trim();
+      if (inner === '') {
+        values[key] = [];
+        continue;
+      }
+      values[key] = inner.split(',').map((s) => parseScalar(s));
       continue;
     }
-    values[key] = raw;
+
+    values[key] = parseScalar(raw);
   }
   return values;
 }

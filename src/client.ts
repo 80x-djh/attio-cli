@@ -7,6 +7,23 @@ const MAX_RETRIES = 3;
 const INITIAL_BACKOFF_MS = 1000;
 const DEFAULT_TIMEOUT_MS = 30_000;
 
+function getRetryDelayMs(response: Response, attempt: number): number {
+  const retryAfter = response.headers.get('retry-after');
+  if (retryAfter) {
+    const asSeconds = Number(retryAfter);
+    if (!Number.isNaN(asSeconds)) {
+      return Math.max(0, Math.ceil(asSeconds * 1000));
+    }
+
+    const asDate = Date.parse(retryAfter);
+    if (!Number.isNaN(asDate)) {
+      return Math.max(0, asDate - Date.now());
+    }
+  }
+
+  return INITIAL_BACKOFF_MS * Math.pow(2, attempt);
+}
+
 export class AttioClient {
   private apiKey: string;
   private debug: boolean;
@@ -61,7 +78,10 @@ export class AttioClient {
 
       if (response.status === 429) {
         if (attempt < MAX_RETRIES) {
-          const backoff = INITIAL_BACKOFF_MS * Math.pow(2, attempt);
+          const backoff = Math.max(100, getRetryDelayMs(response, attempt));
+          if (this.debug) {
+            console.error(chalk.dim(`  retrying in ${backoff}ms`));
+          }
           await new Promise((resolve) => setTimeout(resolve, backoff));
           continue;
         }

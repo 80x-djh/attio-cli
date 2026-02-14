@@ -92,3 +92,10 @@ export async function resolveValues(options: { values?: string; set?: string[] }
   if (stdin.trim()) return JSON.parse(stdin);
   return {};
 }
+
+export function requireValues(values: Record<string, any>): Record<string, any> {
+  if (Object.keys(values).length === 0) {
+    throw new Error('No values provided. Use --set key=value, --values \'{"key":"value"}\', or pipe JSON to stdin.');
+  }
+  return values;
+}

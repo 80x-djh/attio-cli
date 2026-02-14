@@ -5,6 +5,7 @@ import { AttioApiError, AttioAuthError, AttioRateLimitError } from './errors.js'
 const BASE_URL = 'https://api.attio.com/v2';
 const MAX_RETRIES = 3;
 const INITIAL_BACKOFF_MS = 1000;
+const DEFAULT_TIMEOUT_MS = 30_000;
 
 export class AttioClient {
   private apiKey: string;
@@ -20,6 +21,9 @@ export class AttioClient {
 
     if (this.debug) {
       console.error(chalk.dim(`→ ${method} ${url}`));
+      if (body !== undefined) {
+        console.error(chalk.dim(`  body: ${JSON.stringify(body)}`));
+      }
     }
 
     if (!this.apiKey) {
@@ -37,10 +41,22 @@ export class AttioClient {
     }
 
     for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
-      const response = await fetch(url, init);
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT_MS);
+      let response: Response;
+      try {
+        response = await fetch(url, { ...init, signal: controller.signal });
+      } catch (err: any) {
+        clearTimeout(timer);
+        if (err?.name === 'AbortError') {
+          throw new Error(`Request timed out after ${DEFAULT_TIMEOUT_MS / 1000}s: ${method} ${path}`);
+        }
+        throw err;
+      }
+      clearTimeout(timer);
 
       if (this.debug) {
-        console.error(chalk.dim(`← ${response.status}`));
+        console.error(chalk.dim(`← ${response.status} ${response.statusText}`));
       }
 
       if (response.status === 429) {
@@ -61,6 +77,10 @@ export class AttioClient {
       }
 
       const json = await response.json();
+
+      if (this.debug && !response.ok) {
+        console.error(chalk.dim(`  error: ${JSON.stringify(json)}`));
+      }
 
       if (!response.ok) {
         const errorType = json?.type ?? 'unknown_error';

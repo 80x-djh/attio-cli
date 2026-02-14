@@ -9,7 +9,7 @@ export function register(program: Command): void {
   cmd
     .command('list')
     .description('List companies')
-    .option('--filter <expr>', 'Filter expression (repeatable)', (v: string, p: string[]) => [...p, v], [] as string[])
+    .option('--filter <expr>', 'Filter: = != ~ !~ ^ > >= < <= ? (e.g. "name~Acme"). Repeatable', (v: string, p: string[]) => [...p, v], [] as string[])
     .option('--filter-json <json>', 'Raw JSON filter')
     .option('--sort <expr>', 'Sort expression (repeatable)', (v: string, p: string[]) => [...p, v], [] as string[])
     .option('--limit <n>', 'Max results per page', '25')

@@ -18,6 +18,18 @@ export function register(program: Command): void {
       const res = await client.get<{ data: any[] }>('/lists');
       const lists = res.data;
 
+      if (format === 'quiet') {
+        for (const l of lists) {
+          console.log(l.id?.list_id ?? '');
+        }
+        return;
+      }
+
+      if (format === 'json') {
+        outputList(lists, { format });
+        return;
+      }
+
       const flat = lists.map((l: any) => ({
         id: l.id?.list_id || '',
         api_slug: l.api_slug || '',

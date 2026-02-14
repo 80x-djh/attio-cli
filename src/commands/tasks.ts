@@ -35,6 +35,18 @@ export function register(program: Command): void {
       const res = await client.get<{ data: any[] }>(`/tasks?${params.toString()}`);
       const tasksList = res.data;
 
+      if (format === 'quiet') {
+        for (const t of tasksList) {
+          console.log(t.id?.task_id ?? '');
+        }
+        return;
+      }
+
+      if (format === 'json') {
+        outputList(tasksList, { format });
+        return;
+      }
+
       const flat = tasksList.map((t: any) => ({
         id: t.id?.task_id || '',
         content: truncate(t.content_plaintext || '', 60),

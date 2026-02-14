@@ -29,6 +29,18 @@ export function register(program: Command): void {
       const res = await client.get<{ data: any[] }>(`/notes?${params.toString()}`);
       const notesList = res.data;
 
+      if (format === 'quiet') {
+        for (const n of notesList) {
+          console.log(n.id?.note_id ?? '');
+        }
+        return;
+      }
+
+      if (format === 'json') {
+        outputList(notesList, { format });
+        return;
+      }
+
       const flat = notesList.map((n: any) => ({
         id: n.id?.note_id || '',
         title: n.title || '',

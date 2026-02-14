@@ -18,28 +18,52 @@ import { register as registerComments } from '../src/commands/comments.js';
 import { register as registerMembers } from '../src/commands/members.js';
 import { register as registerConfig } from '../src/commands/config.js';
 import { register as registerOpen } from '../src/commands/open.js';
+import { register as registerInit } from '../src/commands/init.js';
+import { isConfigured } from '../src/config.js';
 
 // Global error handler
 function handleError(err: unknown): never {
+  const jsonMode = program.opts().json || !process.stdout.isTTY;
+
   if (err instanceof AttioApiError) {
-    console.error(err.display());
+    if (jsonMode) {
+      console.error(JSON.stringify({ error: true, status: err.statusCode, type: err.type, message: err.detail }));
+    } else {
+      console.error(err.display());
+    }
     process.exit(err.exitCode);
   }
   if (err instanceof AttioAuthError) {
-    console.error(err.display());
+    if (jsonMode) {
+      console.error(JSON.stringify({ error: true, status: 401, type: 'auth_error', message: err.message }));
+    } else {
+      console.error(err.display());
+    }
     process.exit(err.exitCode);
   }
   if (err instanceof AttioRateLimitError) {
-    console.error(err.display());
+    if (jsonMode) {
+      console.error(JSON.stringify({ error: true, status: 429, type: 'rate_limit', message: err.message }));
+    } else {
+      console.error(err.display());
+    }
     process.exit(err.exitCode);
   }
   if (err instanceof Error) {
-    console.error(chalk.red(`Error: ${err.message}`));
-    if (process.env.ATTIO_DEBUG || program.opts().debug) {
-      console.error(err.stack);
+    if (jsonMode) {
+      console.error(JSON.stringify({ error: true, type: 'unknown_error', message: err.message }));
+    } else {
+      console.error(chalk.red(`Error: ${err.message}`));
+      if (process.env.ATTIO_DEBUG || program.opts().debug) {
+        console.error(err.stack);
+      }
     }
   } else {
-    console.error(chalk.red('An unexpected error occurred'));
+    if (jsonMode) {
+      console.error(JSON.stringify({ error: true, type: 'unknown_error', message: 'An unexpected error occurred' }));
+    } else {
+      console.error(chalk.red('An unexpected error occurred'));
+    }
   }
   process.exit(1);
 }
@@ -57,6 +81,10 @@ program
   .option('--no-color', 'Disable colors')
   .option('--debug', 'Print request/response details to stderr');
 
+if (process.argv.includes('--no-color')) {
+  process.env.NO_COLOR = '1';
+}
+
 // Register all commands
 registerWhoami(program);
 registerObjects(program);
@@ -72,6 +100,24 @@ registerComments(program);
 registerMembers(program);
 registerConfig(program);
 registerOpen(program);
+registerInit(program);
+
+// Smart bare invocation: nudge unconfigured users toward `attio init`
+program.action(() => {
+  if (!isConfigured()) {
+    console.error('');
+    console.error(chalk.bold('  Welcome to attio-cli!'));
+    console.error('');
+    console.error(`  You haven't configured an API key yet. Run:`);
+    console.error('');
+    console.error(`    ${chalk.cyan('attio init')}`);
+    console.error('');
+    console.error('  to connect to your Attio workspace.');
+    console.error('');
+  } else {
+    program.outputHelp();
+  }
+});
 
 // Parse and run
 program.parseAsync(process.argv).catch(handleError);

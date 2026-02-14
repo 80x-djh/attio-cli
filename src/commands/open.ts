@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import { exec } from 'child_process';
+import { execFile } from 'child_process';
 import { platform } from 'os';
 import chalk from 'chalk';
 import { AttioClient } from '../client.js';
@@ -32,9 +32,8 @@ export function register(program: Command): void {
       }
 
       const cmd = platform() === 'darwin' ? 'open' : platform() === 'win32' ? 'start' : 'xdg-open';
-      exec(`${cmd} "${url}"`, (err) => {
+      execFile(cmd, [url], (err) => {
         if (err) {
-          // Fallback: just print the URL
           console.log(url);
         }
       });

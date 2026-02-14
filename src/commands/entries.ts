@@ -2,7 +2,7 @@ import { Command } from 'commander';
 import { AttioClient } from '../client.js';
 import { detectFormat, outputList, outputSingle, confirm, type OutputFormat } from '../output.js';
 import { parseFilterFlag, combineFilters, parseSort } from '../filters.js';
-import { flattenValue, resolveValues } from '../values.js';
+import { flattenValue, resolveValues, requireValues } from '../values.js';
 import { paginate } from '../pagination.js';
 
 function flattenEntry(entry: any): Record<string, string> {
@@ -25,7 +25,7 @@ export function register(program: Command): void {
   cmd
     .command('list <list>')
     .description('List entries in a list')
-    .option('--filter <expr>', 'Filter expression (repeatable)', (v: string, p: string[]) => [...p, v], [] as string[])
+    .option('--filter <expr>', 'Filter: = != ~ !~ ^ > >= < <= ? (e.g. "name~Acme"). Repeatable', (v: string, p: string[]) => [...p, v], [] as string[])
     .option('--filter-json <json>', 'Raw JSON filter')
     .option('--sort <expr>', 'Sort expression (repeatable)', (v: string, p: string[]) => [...p, v], [] as string[])
     .option('--limit <n>', 'Max results per page', '25')
@@ -101,7 +101,7 @@ export function register(program: Command): void {
       const client = new AttioClient(opts.apiKey, opts.debug);
       const format: OutputFormat = detectFormat(opts);
 
-      const resolvedValues = await resolveValues({ values: opts.values, set: opts.set });
+      const resolvedValues = requireValues(await resolveValues({ values: opts.values, set: opts.set }));
 
       const body: any = {
         data: {
@@ -133,7 +133,7 @@ export function register(program: Command): void {
       const client = new AttioClient(opts.apiKey, opts.debug);
       const format: OutputFormat = detectFormat(opts);
 
-      const resolvedValues = await resolveValues({ values: opts.values, set: opts.set });
+      const resolvedValues = requireValues(await resolveValues({ values: opts.values, set: opts.set }));
 
       const body: any = {
         data: {

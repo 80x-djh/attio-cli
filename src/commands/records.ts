@@ -2,7 +2,7 @@ import { Command } from 'commander';
 import { AttioClient } from '../client.js';
 import { detectFormat, outputList, outputSingle, confirm, type OutputFormat } from '../output.js';
 import { parseFilterFlag, combineFilters, parseSort } from '../filters.js';
-import { flattenRecord, resolveValues } from '../values.js';
+import { flattenRecord, resolveValues, requireValues } from '../values.js';
 import { paginate } from '../pagination.js';
 
 // ---------------------------------------------------------------------------
@@ -91,7 +91,7 @@ export async function createRecord(object: string, cmdOpts: any): Promise<void> 
   const client = new AttioClient(cmdOpts.apiKey, cmdOpts.debug);
   const format: OutputFormat = detectFormat(cmdOpts);
 
-  const values = await resolveValues(cmdOpts);
+  const values = requireValues(await resolveValues(cmdOpts));
 
   const res = await client.post<{ data: any }>(
     `/objects/${encodeURIComponent(object)}/records`,
@@ -116,7 +116,7 @@ export async function updateRecord(object: string, recordId: string, cmdOpts: an
   const client = new AttioClient(cmdOpts.apiKey, cmdOpts.debug);
   const format: OutputFormat = detectFormat(cmdOpts);
 
-  const values = await resolveValues(cmdOpts);
+  const values = requireValues(await resolveValues(cmdOpts));
 
   const res = await client.patch<{ data: any }>(
     `/objects/${encodeURIComponent(object)}/records/${encodeURIComponent(recordId)}`,
@@ -170,7 +170,7 @@ async function upsertRecord(object: string, cmdOpts: any): Promise<void> {
     throw new Error('--match <attribute-slug> is required for upsert');
   }
 
-  const values = await resolveValues(cmdOpts);
+  const values = requireValues(await resolveValues(cmdOpts));
 
   // CRITICAL: matching_attribute is a QUERY PARAMETER, not in the body
   const res = await client.put<{ data: any }>(
@@ -241,7 +241,7 @@ export function register(program: Command): void {
     .argument('<object>', 'Object slug or ID (e.g. companies, people)')
     .option(
       '--filter <expr>',
-      'Filter expression, e.g. "name~Acme" (repeatable)',
+      'Filter: = != ~ !~ ^ > >= < <= ? (e.g. "name~Acme", "revenue>=1000", "email?"). Repeatable',
       (val: string, prev: string[]) => [...prev, val],
       [] as string[],
     )

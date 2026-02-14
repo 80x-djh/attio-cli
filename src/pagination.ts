@@ -4,6 +4,8 @@ export interface PaginationOptions {
   all: boolean;
 }
 
+const MAX_ALL_RECORDS = 10_000;
+
 export async function paginate<T>(
   fetchPage: (limit: number, offset: number) => Promise<T[]>,
   options: PaginationOptions
@@ -21,6 +23,10 @@ export async function paginate<T>(
     allResults.push(...page);
     if (page.length < pageSize) break;
     offset += pageSize;
+    if (allResults.length >= MAX_ALL_RECORDS) {
+      console.error(`Warning: --all stopped after ${MAX_ALL_RECORDS} records. Use --limit and --offset for manual pagination.`);
+      break;
+    }
   }
 
   return allResults;

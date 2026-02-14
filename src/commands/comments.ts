@@ -29,7 +29,19 @@ export function register(program: Command): void {
       const res = await client.get<{ data: any[] }>(`/threads?${params.toString()}`);
       const threads = res.data;
 
-      // Flatten threads into individual comments for display
+      if (format === 'quiet') {
+        for (const thread of threads) {
+          console.log(thread.id?.thread_id || thread.thread_id || '');
+        }
+        return;
+      }
+
+      if (format === 'json') {
+        outputList(threads, { format });
+        return;
+      }
+
+      // Flatten threads into individual comments for table/csv display
       const flat: Record<string, any>[] = [];
       for (const thread of threads) {
         const threadId = thread.id?.thread_id || thread.thread_id || '';
@@ -43,7 +55,6 @@ export function register(program: Command): void {
             });
           }
         } else {
-          // Thread without nested comments — show thread-level info
           flat.push({
             thread_id: threadId,
             author: thread.created_by_actor?.id || '',

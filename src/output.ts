@@ -91,6 +91,11 @@ export function outputSingle(item: Record<string, any>, opts: {
 }
 
 export async function confirm(message: string): Promise<boolean> {
+  if (!process.stdin.isTTY) {
+    console.error(`${message} [y/N]`);
+    console.error('Error: Confirmation required but stdin is not a TTY. Use --yes to skip.');
+    return false;
+  }
   const rl = createInterface({ input: process.stdin, output: process.stderr });
   return new Promise(resolve => {
     rl.question(`${message} [y/N] `, answer => {

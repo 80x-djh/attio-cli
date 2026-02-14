@@ -11,19 +11,34 @@ npm install -g attio-cli
 ## Quick Start
 
 ```bash
-export ATTIO_API_KEY=your_key
-# or
-attio config set api-key your_key
-
-attio whoami
-attio objects list
+attio init          # guided setup — paste your API key, done
+attio whoami        # verify connection
 attio people list --limit 5
+```
+
+You'll need an API key from [Attio Developer Settings](https://app.attio.com/settings/developers). `attio init` walks you through the rest.
+
+For non-interactive environments (CI, scripts), use any of:
+
+```bash
+attio init --api-key <key>           # validates and saves
+export ATTIO_API_KEY=<key>           # env var (takes precedence)
+attio config set api-key <key>       # direct config write
+```
+
+## Agent Setup
+
+To let AI agents (Claude, etc.) discover this CLI, append the auto-generated snippet to your project's `CLAUDE.md`:
+
+```bash
+attio config claude-md >> CLAUDE.md
 ```
 
 ## Command Reference
 
 | Command | Description |
 |---------|-------------|
+| `attio init` | Interactive setup wizard — connect to your Attio workspace |
 | `attio whoami` | Show current workspace and user info |
 | **Objects** | |
 | `attio objects list` | List all objects in the workspace |

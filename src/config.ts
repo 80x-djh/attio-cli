@@ -45,3 +45,7 @@ export function setApiKey(key: string): void {
 export function getConfigPath(): string {
   return CONFIG_FILE;
 }
+
+export function isConfigured(): boolean {
+  return resolveApiKey() !== '';
+}

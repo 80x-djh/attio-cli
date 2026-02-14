@@ -5,9 +5,11 @@
   "license": "MIT",
   "type": "module",
   "bin": {
-    "attio": "./dist/attio.js"
+    "attio": "dist/attio.js"
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup",
     "dev": "tsx bin/attio.ts"

@@ -1,0 +1,424 @@
+{
+  "meta": {
+    "date": "2026-02-14T01:55:54.657Z",
+    "runsPerScenario": 5,
+    "timedRuns": 4,
+    "delayBetweenRunsMs": 150,
+    "totalScenarios": 31,
+    "successfulScenarios": 31,
+    "failedScenarios": 0
+  },
+  "summary": {
+    "overallMedianMs": 492.19,
+    "readMedianMs": 430.95,
+    "writeMedianMs": 787.48,
+    "compoundMedianMs": 1386.29,
+    "fastestScenario": "objects list",
+    "slowestScenario": "compound: create person + add comment"
+  },
+  "results": [
+    {
+      "scenario": "whoami",
+      "category": "read",
+      "medianMs": 309.26,
+      "runs": [
+        287.18,
+        273.63,
+        280.13,
+        338.39,
+        359.81
+      ],
+      "warmupMs": 287.18
+    },
+    {
+      "scenario": "objects list",
+      "category": "read",
+      "medianMs": 294.34,
+      "runs": [
+        865.02,
+        322.46,
+        372.5,
+        265.68,
+        266.22
+      ],
+      "warmupMs": 865.02
+    },
+    {
+      "scenario": "objects get companies",
+      "category": "read",
+      "medianMs": 366.12,
+      "runs": [
+        287.01,
+        308.12,
+        424.13,
+        307.57,
+        466.53
+      ],
+      "warmupMs": 287.01
+    },
+    {
+      "scenario": "attributes list companies",
+      "category": "read",
+      "medianMs": 389.03,
+      "runs": [
+        404.08,
+        343.51,
+        364.99,
+        413.07,
+        831.05
+      ],
+      "warmupMs": 404.08
+    },
+    {
+      "scenario": "companies list",
+      "category": "read",
+      "medianMs": 712.9,
+      "runs": [
+        429.09,
+        516.98,
+        703.75,
+        722.04,
+        741.84
+      ],
+      "warmupMs": 429.09
+    },
+    {
+      "scenario": "companies list --limit 5",
+      "category": "read",
+      "medianMs": 493.51,
+      "runs": [
+        587.43,
+        495.1,
+        559.19,
+        491.92,
+        396.27
+      ],
+      "warmupMs": 587.43
+    },
+    {
+      "scenario": "companies get <id>",
+      "category": "read",
+      "medianMs": 409.22,
+      "runs": [
+        500.05,
+        416.03,
+        440.21,
+        402.4,
+        345.42
+      ],
+      "warmupMs": 500.05
+    },
+    {
+      "scenario": "companies search __BENCHMARK",
+      "category": "read",
+      "medianMs": 373.86,
+      "runs": [
+        641.82,
+        374.4,
+        371.75,
+        373.33,
+        898.01
+      ],
+      "warmupMs": 641.82
+    },
+    {
+      "scenario": "companies list --filter name~__BENCHMARK",
+      "category": "read",
+      "medianMs": 495.15,
+      "runs": [
+        886.76,
+        550.25,
+        440.05,
+        670.24,
+        436.62
+      ],
+      "warmupMs": 886.76
+    },
+    {
+      "scenario": "people list",
+      "category": "read",
+      "medianMs": 482.53,
+      "runs": [
+        557.61,
+        430.21,
+        437.2,
+        527.85,
+        568.25
+      ],
+      "warmupMs": 557.61
+    },
+    {
+      "scenario": "people list --limit 5",
+      "category": "read",
+      "medianMs": 492.19,
+      "runs": [
+        497.79,
+        401.01,
+        677.3,
+        442.64,
+        541.74
+      ],
+      "warmupMs": 497.79
+    },
+    {
+      "scenario": "people get <id>",
+      "category": "read",
+      "medianMs": 452.28,
+      "runs": [
+        820.7,
+        449.52,
+        526.87,
+        375.51,
+        455.04
+      ],
+      "warmupMs": 820.7
+    },
+    {
+      "scenario": "notes list",
+      "category": "read",
+      "medianMs": 539.29,
+      "runs": [
+        572.15,
+        442.03,
+        595.85,
+        482.74,
+        937.41
+      ],
+      "warmupMs": 572.15
+    },
+    {
+      "scenario": "notes list --object companies --record <id>",
+      "category": "read",
+      "medianMs": 425.1,
+      "runs": [
+        439.25,
+        468.09,
+        366.4,
+        591.84,
+        382.11
+      ],
+      "warmupMs": 439.25
+    },
+    {
+      "scenario": "notes get <id>",
+      "category": "read",
+      "medianMs": 446.08,
+      "runs": [
+        479.36,
+        385.73,
+        594.23,
+        506.43,
+        365.41
+      ],
+      "warmupMs": 479.36
+    },
+    {
+      "scenario": "tasks list",
+      "category": "read",
+      "medianMs": 707.4,
+      "runs": [
+        395.77,
+        739.25,
+        693.14,
+        721.66,
+        457.6
+      ],
+      "warmupMs": 395.77
+    },
+    {
+      "scenario": "tasks get <id>",
+      "category": "read",
+      "medianMs": 430.23,
+      "runs": [
+        564.05,
+        315.95,
+        559.57,
+        480.36,
+        380.1
+      ],
+      "warmupMs": 564.05
+    },
+    {
+      "scenario": "comments list --object companies --record <id>",
+      "category": "read",
+      "medianMs": 431.67,
+      "runs": [
+        483.31,
+        391.41,
+        387.53,
+        471.93,
+        1180.3
+      ],
+      "warmupMs": 483.31
+    },
+    {
+      "scenario": "lists list",
+      "category": "read",
+      "medianMs": 373.92,
+      "runs": [
+        373.66,
+        373.85,
+        373.98,
+        369.19,
+        379.53
+      ],
+      "warmupMs": 373.66
+    },
+    {
+      "scenario": "members list",
+      "category": "read",
+      "medianMs": 388.27,
+      "runs": [
+        364.18,
+        400.7,
+        343.48,
+        375.84,
+        407.01
+      ],
+      "warmupMs": 364.18
+    },
+    {
+      "scenario": "companies create",
+      "category": "write",
+      "medianMs": 840.91,
+      "runs": [
+        664.77,
+        656.06,
+        810.96,
+        1466.66,
+        870.85
+      ],
+      "warmupMs": 664.77
+    },
+    {
+      "scenario": "people create",
+      "category": "write",
+      "medianMs": 787.48,
+      "runs": [
+        1245.07,
+        1278.56,
+        696.22,
+        878.75,
+        553.8
+      ],
+      "warmupMs": 1245.07
+    },
+    {
+      "scenario": "records update companies <id>",
+      "category": "write",
+      "medianMs": 627,
+      "runs": [
+        738.22,
+        633.46,
+        620.53,
+        569.93,
+        774
+      ],
+      "warmupMs": 738.22
+    },
+    {
+      "scenario": "notes create",
+      "category": "write",
+      "medianMs": 605.5,
+      "runs": [
+        661.03,
+        435.52,
+        1393.5,
+        588.83,
+        622.16
+      ],
+      "warmupMs": 661.03
+    },
+    {
+      "scenario": "tasks create",
+      "category": "write",
+      "medianMs": 901.56,
+      "runs": [
+        899.94,
+        865.17,
+        841.79,
+        937.94,
+        1227.23
+      ],
+      "warmupMs": 899.94
+    },
+    {
+      "scenario": "comments create",
+      "category": "write",
+      "medianMs": 956.92,
+      "runs": [
+        1040.12,
+        895.25,
+        753.39,
+        1700.24,
+        1018.59
+      ],
+      "warmupMs": 1040.12
+    },
+    {
+      "scenario": "records delete",
+      "category": "write",
+      "medianMs": 410.61,
+      "runs": [
+        522.41,
+        589.62,
+        432.34,
+        388.88,
+        373.52
+      ],
+      "warmupMs": 522.41
+    },
+    {
+      "scenario": "compound: create company + add note",
+      "category": "compound",
+      "medianMs": 1250.6,
+      "runs": [
+        1115.5,
+        1006.98,
+        2149.65,
+        1105.13,
+        1396.06
+      ],
+      "warmupMs": 1115.5
+    },
+    {
+      "scenario": "compound: create company + add task",
+      "category": "compound",
+      "medianMs": 1472.41,
+      "runs": [
+        1264.34,
+        1406.54,
+        1402.06,
+        1538.29,
+        2672.71
+      ],
+      "warmupMs": 1264.34
+    },
+    {
+      "scenario": "compound: create person + add comment",
+      "category": "compound",
+      "medianMs": 1647.4,
+      "runs": [
+        1154.19,
+        1621.78,
+        1673.03,
+        1507.46,
+        1880.7
+      ],
+      "warmupMs": 1154.19
+    },
+    {
+      "scenario": "compound: search + get detail",
+      "category": "compound",
+      "medianMs": 1300.16,
+      "runs": [
+        2480.16,
+        1425.83,
+        1101.45,
+        1498.68,
+        1174.49
+      ],
+      "warmupMs": 2480.16
+    }
+  ]
+}

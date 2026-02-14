@@ -1,0 +1,437 @@
+{
+  "timestamp": "2026-02-14T02:41:19.735Z",
+  "model": "claude-sonnet-4-5-20250929",
+  "environment": {
+    "os": "darwin",
+    "node": "v25.2.1",
+    "runsPerScenario": 5,
+    "warmupRuns": 1
+  },
+  "calibration": {
+    "baseline_tokens": 530,
+    "cli_tokens": 4204,
+    "mcp_tokens": 18725,
+    "bash_overhead": 3674,
+    "mcp_overhead": 18195,
+    "attio_schema_overhead": 14521
+  },
+  "scenarios": [
+    {
+      "id": 1,
+      "name": "List companies",
+      "category": "read",
+      "prompt": "List the first 10 companies in my Attio workspace. Return JSON.",
+      "mcp": {
+        "runs": [
+          {
+            "input_tokens": 9,
+            "output_tokens": 2493,
+            "total_input_tokens": 42596,
+            "latency_ms": 46281,
+            "num_turns": 2,
+            "success": true,
+            "cost_usd": 0.22205450000000002
+          },
+          {
+            "input_tokens": 9,
+            "output_tokens": 2605,
+            "total_input_tokens": 42548,
+            "latency_ms": 48315,
+            "num_turns": 2,
+            "success": true,
+            "cost_usd": 0.22469250000000002
+          },
+          {
+            "input_tokens": 9,
+            "output_tokens": 2297,
+            "total_input_tokens": 42514,
+            "latency_ms": 46065,
+            "num_turns": 2,
+            "success": true,
+            "cost_usd": 0.21687775000000004
+          },
+          {
+            "input_tokens": 9,
+            "output_tokens": 2672,
+            "total_input_tokens": 42612,
+            "latency_ms": 49274,
+            "num_turns": 2,
+            "success": true,
+            "cost_usd": 0.2266295
+          },
+          {
+            "input_tokens": 9,
+            "output_tokens": 2475,
+            "total_input_tokens": 42538,
+            "latency_ms": 48893,
+            "num_turns": 2,
+            "success": true,
+            "cost_usd": 0.22140875
+          }
+        ],
+        "median_input_tokens": 9,
+        "median_output_tokens": 2540,
+        "median_total_input_tokens": 42543,
+        "median_latency_ms": 48604,
+        "median_cost_usd": 0.223050625
+      },
+      "cli": {
+        "runs": [
+          {
+            "input_tokens": 20,
+            "output_tokens": 1373,
+            "total_input_tokens": 20635,
+            "latency_ms": 22219,
+            "num_turns": 4,
+            "success": true,
+            "cost_usd": 0.059642249999999994
+          },
+          {
+            "input_tokens": 15,
+            "output_tokens": 615,
+            "total_input_tokens": 14033,
+            "latency_ms": 15352,
+            "num_turns": 3,
+            "success": true,
+            "cost_usd": 0.0309345
+          },
+          {
+            "input_tokens": 15,
+            "output_tokens": 623,
+            "total_input_tokens": 14029,
+            "latency_ms": 14365,
+            "num_turns": 3,
+            "success": true,
+            "cost_usd": 0.028154000000000002
+          },
+          {
+            "input_tokens": 20,
+            "output_tokens": 1867,
+            "total_input_tokens": 21141,
+            "latency_ms": 27024,
+            "num_turns": 4,
+            "success": true,
+            "cost_usd": 0.07510875
+          },
+          {
+            "input_tokens": 15,
+            "output_tokens": 615,
+            "total_input_tokens": 14030,
+            "latency_ms": 12907,
+            "num_turns": 3,
+            "success": true,
+            "cost_usd": 0.02796025
+          }
+        ],
+        "median_input_tokens": 15,
+        "median_output_tokens": 619,
+        "median_total_input_tokens": 14032,
+        "median_latency_ms": 14859,
+        "median_cost_usd": 0.02954425
+      },
+      "direct": {
+        "runs": [
+          {
+            "latency_ms": 439,
+            "success": true
+          },
+          {
+            "latency_ms": 462,
+            "success": true
+          },
+          {
+            "latency_ms": 802,
+            "success": true
+          },
+          {
+            "latency_ms": 663,
+            "success": true
+          },
+          {
+            "latency_ms": 644,
+            "success": true
+          }
+        ],
+        "median_latency_ms": 654
+      }
+    },
+    {
+      "id": 2,
+      "name": "Search companies by name",
+      "category": "read",
+      "prompt": "Find companies whose name contains 'Benchmark'. Return JSON.",
+      "mcp": {
+        "runs": [
+          {
+            "input_tokens": 9,
+            "output_tokens": 588,
+            "total_input_tokens": 37742,
+            "latency_ms": 11509,
+            "num_turns": 2,
+            "success": true,
+            "cost_usd": 0.040868
+          },
+          {
+            "input_tokens": 9,
+            "output_tokens": 510,
+            "total_input_tokens": 37734,
+            "latency_ms": 12400,
+            "num_turns": 2,
+            "success": true,
+            "cost_usd": 0.1421955
+          },
+          {
+            "input_tokens": 9,
+            "output_tokens": 529,
+            "total_input_tokens": 37748,
+            "latency_ms": 11343,
+            "num_turns": 2,
+            "success": true,
+            "cost_usd": 0.14264875
+          },
+          {
+            "input_tokens": 9,
+            "output_tokens": 553,
+            "total_input_tokens": 37734,
+            "latency_ms": 11466,
+            "num_turns": 2,
+            "success": true,
+            "cost_usd": 0.14327050000000002
+          },
+          {
+            "input_tokens": 9,
+            "output_tokens": 497,
+            "total_input_tokens": 37688,
+            "latency_ms": 10791,
+            "num_turns": 2,
+            "success": true,
+            "cost_usd": 0.14164625
+          }
+        ],
+        "median_input_tokens": 9,
+        "median_output_tokens": 520,
+        "median_total_input_tokens": 37734,
+        "median_latency_ms": 11405,
+        "median_cost_usd": 0.142422125
+      },
+      "cli": {
+        "runs": [
+          {
+            "input_tokens": 23,
+            "output_tokens": 5294,
+            "total_input_tokens": 23908,
+            "latency_ms": 73681,
+            "num_turns": 4,
+            "success": true,
+            "cost_usd": 0.18575575
+          },
+          {
+            "input_tokens": 16,
+            "output_tokens": 4554,
+            "total_input_tokens": 18993,
+            "latency_ms": 67357,
+            "num_turns": 3,
+            "success": true,
+            "cost_usd": 0.16046575000000002
+          },
+          {
+            "input_tokens": 16,
+            "output_tokens": 6110,
+            "total_input_tokens": 18996,
+            "latency_ms": 79302,
+            "num_turns": 3,
+            "success": true,
+            "cost_usd": 0.19641750000000002
+          },
+          {
+            "input_tokens": 16,
+            "output_tokens": 6107,
+            "total_input_tokens": 18996,
+            "latency_ms": 63969,
+            "num_turns": 3,
+            "success": true,
+            "cost_usd": 0.19930950000000003
+          },
+          {
+            "input_tokens": 16,
+            "output_tokens": 6109,
+            "total_input_tokens": 18989,
+            "latency_ms": 79083,
+            "num_turns": 3,
+            "success": true,
+            "cost_usd": 0.19634875
+          }
+        ],
+        "median_input_tokens": 16,
+        "median_output_tokens": 6108,
+        "median_total_input_tokens": 18995,
+        "median_latency_ms": 73220,
+        "median_cost_usd": 0.196383125
+      },
+      "direct": {
+        "runs": [
+          {
+            "latency_ms": 494,
+            "success": true
+          },
+          {
+            "latency_ms": 554,
+            "success": true
+          },
+          {
+            "latency_ms": 503,
+            "success": true
+          },
+          {
+            "latency_ms": 668,
+            "success": true
+          },
+          {
+            "latency_ms": 677,
+            "success": true
+          }
+        ],
+        "median_latency_ms": 611
+      }
+    },
+    {
+      "id": 3,
+      "name": "Get company by ID",
+      "category": "read",
+      "prompt": "Get the company with ID e0f0659b-1205-497d-87a0-92f3f538a372. Return JSON.",
+      "mcp": {
+        "runs": [
+          {
+            "input_tokens": 9,
+            "output_tokens": 259,
+            "total_input_tokens": 37268,
+            "latency_ms": 8630,
+            "num_turns": 2,
+            "success": true,
+            "cost_usd": 0.029852999999999998
+          },
+          {
+            "input_tokens": 9,
+            "output_tokens": 259,
+            "total_input_tokens": 37276,
+            "latency_ms": 8398,
+            "num_turns": 2,
+            "success": true,
+            "cost_usd": 0.13298325
+          },
+          {
+            "input_tokens": 9,
+            "output_tokens": 271,
+            "total_input_tokens": 37285,
+            "latency_ms": 8717,
+            "num_turns": 2,
+            "success": true,
+            "cost_usd": 0.03022475
+          },
+          {
+            "input_tokens": 9,
+            "output_tokens": 270,
+            "total_input_tokens": 37300,
+            "latency_ms": 8711,
+            "num_turns": 2,
+            "success": true,
+            "cost_usd": 0.0302015
+          },
+          {
+            "input_tokens": 9,
+            "output_tokens": 270,
+            "total_input_tokens": 37286,
+            "latency_ms": 8364,
+            "num_turns": 2,
+            "success": true,
+            "cost_usd": 0.030435999999999998
+          }
+        ],
+        "median_input_tokens": 9,
+        "median_output_tokens": 270,
+        "median_total_input_tokens": 37286,
+        "median_latency_ms": 8555,
+        "median_cost_usd": 0.030330375
+      },
+      "cli": {
+        "runs": [
+          {
+            "input_tokens": 16,
+            "output_tokens": 1316,
+            "total_input_tokens": 14328,
+            "latency_ms": 18666,
+            "num_turns": 3,
+            "success": true,
+            "cost_usd": 0.05329775
+          },
+          {
+            "input_tokens": 16,
+            "output_tokens": 1314,
+            "total_input_tokens": 14326,
+            "latency_ms": 18892,
+            "num_turns": 3,
+            "success": true,
+            "cost_usd": 0.049906
+          },
+          {
+            "input_tokens": 16,
+            "output_tokens": 1134,
+            "total_input_tokens": 14323,
+            "latency_ms": 17632,
+            "num_turns": 3,
+            "success": true,
+            "cost_usd": 0.04538725
+          },
+          {
+            "input_tokens": 16,
+            "output_tokens": 1314,
+            "total_input_tokens": 14326,
+            "latency_ms": 17885,
+            "num_turns": 3,
+            "success": true,
+            "cost_usd": 0.046893
+          },
+          {
+            "input_tokens": 16,
+            "output_tokens": 1315,
+            "total_input_tokens": 14328,
+            "latency_ms": 17838,
+            "num_turns": 3,
+            "success": true,
+            "cost_usd": 0.049937749999999996
+          }
+        ],
+        "median_input_tokens": 16,
+        "median_output_tokens": 1314,
+        "median_total_input_tokens": 14326,
+        "median_latency_ms": 17862,
+        "median_cost_usd": 0.0483995
+      },
+      "direct": {
+        "runs": [
+          {
+            "latency_ms": 437,
+            "success": true
+          },
+          {
+            "latency_ms": 431,
+            "success": true
+          },
+          {
+            "latency_ms": 502,
+            "success": true
+          },
+          {
+            "latency_ms": 521,
+            "success": true
+          },
+          {
+            "latency_ms": 349,
+            "success": true
+          }
+        ],
+        "median_latency_ms": 467
+      }
+    }
+  ]
+}

@@ -51,14 +51,18 @@ attio config claude-md >> CLAUDE.md
 | `attio records create <object>` | Create a new record |
 | `attio records update <object> <id>` | Update an existing record |
 | `attio records delete <object> <id>` | Delete a record |
-| `attio records upsert <object>` | Create or update a record by matching attribute |
-| `attio records search <object>` | Full-text search across records |
+| `attio records assert <object>` | Create or update a record by matching attribute |
+| `attio records upsert <object>` | Alias for `records assert` |
+| `attio records search <query>` | Full-text search across one or more objects |
+| `attio records values <object> <id>` | List current and historic attribute values |
+| `attio records entries <object> <id>` | List list entries where this record is the parent |
 | **People** | |
 | `attio people list` | List people |
 | `attio people get <id>` | Get a person by ID |
 | `attio people create` | Create a person |
 | `attio people update <id>` | Update a person |
 | `attio people delete <id>` | Delete a person |
+| `attio people assert` | Assert (upsert) a person by matching attribute |
 | `attio people search <query>` | Search people by name or email |
 | **Companies** | |
 | `attio companies list` | List companies |
@@ -66,7 +70,32 @@ attio config claude-md >> CLAUDE.md
 | `attio companies create` | Create a company |
 | `attio companies update <id>` | Update a company |
 | `attio companies delete <id>` | Delete a company |
+| `attio companies assert` | Assert (upsert) a company by matching attribute |
 | `attio companies search <query>` | Search companies by name or domain |
+| **Deals** | |
+| `attio deals list` | List deals |
+| `attio deals get <id>` | Get a deal by ID |
+| `attio deals create` | Create a deal |
+| `attio deals update <id>` | Update a deal |
+| `attio deals delete <id>` | Delete a deal |
+| `attio deals assert` | Assert (upsert) a deal by matching attribute |
+| `attio deals search <query>` | Search deals |
+| **Users** | |
+| `attio users list` | List users |
+| `attio users get <id>` | Get a user by ID |
+| `attio users create` | Create a user |
+| `attio users update <id>` | Update a user |
+| `attio users delete <id>` | Delete a user |
+| `attio users assert` | Assert (upsert) a user by matching attribute |
+| `attio users search <query>` | Search users |
+| **Workspaces (Standard Object)** | |
+| `attio workspaces list` | List workspace records |
+| `attio workspaces get <id>` | Get a workspace record by ID |
+| `attio workspaces create` | Create a workspace record |
+| `attio workspaces update <id>` | Update a workspace record |
+| `attio workspaces delete <id>` | Delete a workspace record |
+| `attio workspaces assert` | Assert (upsert) a workspace record by matching attribute |
+| `attio workspaces search <query>` | Search workspace records |
 | **Lists** | |
 | `attio lists list` | List all lists |
 | `attio lists get <id>` | Get a specific list |
@@ -74,6 +103,7 @@ attio config claude-md >> CLAUDE.md
 | `attio entries list <list>` | List entries in a list |
 | `attio entries get <list> <id>` | Get a specific entry |
 | `attio entries create <list>` | Add an entry to a list |
+| `attio entries assert <list>` | Assert (upsert) an entry by parent record |
 | `attio entries update <list> <id>` | Update a list entry |
 | `attio entries delete <list> <id>` | Remove an entry from a list |
 | **Tasks** | |
@@ -91,6 +121,22 @@ attio config claude-md >> CLAUDE.md
 | `attio comments list` | List comments on a thread |
 | `attio comments create` | Create a comment |
 | `attio comments delete <id>` | Delete a comment |
+| **Threads** | |
+| `attio threads list` | List threaded conversations |
+| `attio threads get <id>` | Get a thread by ID |
+| **Meetings (Beta)** | |
+| `attio meetings list` | List meetings (beta endpoint) |
+| `attio meetings get <id>` | Get a meeting (beta endpoint) |
+| **Recordings (Beta)** | |
+| `attio recordings list --meeting <id>` | List call recordings for a meeting |
+| `attio recordings get <id> --meeting <id>` | Get a call recording, optionally with transcript |
+| **Webhooks** | |
+| `attio webhooks events` | List supported webhook event types |
+| `attio webhooks list` | List webhooks |
+| `attio webhooks get <id>` | Get a webhook by ID |
+| `attio webhooks create` | Create a webhook |
+| `attio webhooks update <id>` | Update a webhook |
+| `attio webhooks delete <id>` | Delete a webhook |
 | **Members** | |
 | `attio members list` | List workspace members |
 | **Config** | |

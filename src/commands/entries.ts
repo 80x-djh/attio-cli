@@ -124,6 +124,40 @@ export function register(program: Command): void {
     });
 
   cmd
+    .command('assert <list>')
+    .description('Create or update a list entry by parent record')
+    .requiredOption('--record <record-id>', 'Parent record ID (required)')
+    .requiredOption('--object <parent-object>', 'Parent object slug (required)')
+    .option('--values <json>', 'Entry values as JSON string or @file')
+    .option('--set <key=value>', 'Set a field value (repeatable)', (v: string, p: string[]) => [...p, v], [] as string[])
+    .action(async (list: string, _options: any, command: Command) => {
+      const opts = command.optsWithGlobals();
+      const client = new AttioClient(opts.apiKey, opts.debug);
+      const format: OutputFormat = detectFormat(opts);
+
+      const resolvedValues = requireValues(await resolveValues({ values: opts.values, set: opts.set }));
+
+      const body: any = {
+        data: {
+          parent_record_id: opts.record,
+          parent_object: opts.object,
+          entry_values: resolvedValues,
+        },
+      };
+
+      const res = await client.put<{ data: any }>(`/lists/${list}/entries`, body);
+      const entry = res.data;
+
+      if (format === 'json') {
+        outputSingle(entry, { format, idField: 'id' });
+        return;
+      }
+
+      const flat = flattenEntry(entry);
+      outputSingle(flat, { format, idField: 'id' });
+    });
+
+  cmd
     .command('update <list> <entry-id>')
     .description('Update an entry')
     .option('--values <json>', 'Entry values as JSON string or @file')

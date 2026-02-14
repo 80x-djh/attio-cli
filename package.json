@@ -1,6 +1,6 @@
 {
   "name": "attio-cli",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "CLI for the Attio CRM API. Built for scripts, agents, and humans who prefer terminals.",
   "license": "MIT",
   "type": "module",

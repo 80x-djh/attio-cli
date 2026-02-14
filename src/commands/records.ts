@@ -2,18 +2,45 @@ import { Command } from 'commander';
 import { AttioClient } from '../client.js';
 import { detectFormat, outputList, outputSingle, confirm, type OutputFormat } from '../output.js';
 import { parseFilterFlag, combineFilters, parseSort } from '../filters.js';
-import { flattenRecord, resolveValues, requireValues } from '../values.js';
+import { flattenRecord, flattenValue, resolveValues, requireValues } from '../values.js';
 import { paginate } from '../pagination.js';
 
+function parseLimit(value: unknown, fallback: number): number {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || parsed <= 0) return fallback;
+  return Math.floor(parsed);
+}
+
+function parseOffset(value: unknown): number {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || parsed < 0) return 0;
+  return Math.floor(parsed);
+}
+
+function flattenEntry(entry: any): Record<string, string> {
+  const flat: Record<string, string> = {
+    id: entry.id?.entry_id || '',
+    list_id: entry.id?.list_id || '',
+    parent_record_id: entry.parent_record_id || entry.record_id || '',
+    created_at: entry.created_at?.slice(0, 10) || '',
+  };
+
+  const values = entry.entry_values || entry.values || {};
+  for (const [key, attrValues] of Object.entries(values)) {
+    flat[key] = flattenValue(attrValues as any[]);
+  }
+
+  return flat;
+}
+
 // ---------------------------------------------------------------------------
-// Core action functions — exported so people.ts / companies.ts can reuse them
+// Core action functions - exported so shortcut commands can reuse them
 // ---------------------------------------------------------------------------
 
 export async function listRecords(object: string, cmdOpts: any): Promise<void> {
   const client = new AttioClient(cmdOpts.apiKey, cmdOpts.debug);
   const format: OutputFormat = detectFormat(cmdOpts);
 
-  // Build filter
   let filter: Record<string, any> | undefined;
   if (cmdOpts.filterJson) {
     filter = JSON.parse(cmdOpts.filterJson);
@@ -22,14 +49,13 @@ export async function listRecords(object: string, cmdOpts: any): Promise<void> {
     filter = combineFilters(parsed);
   }
 
-  // Build sorts
   let sorts: any[] | undefined;
   if (cmdOpts.sort && cmdOpts.sort.length > 0) {
     sorts = (cmdOpts.sort as string[]).map(parseSort);
   }
 
-  const limit = Number(cmdOpts.limit) || 25;
-  const offset = Number(cmdOpts.offset) || 0;
+  const limit = parseLimit(cmdOpts.limit, 25);
+  const offset = parseOffset(cmdOpts.offset);
   const all = cmdOpts.all ?? false;
 
   const fetchPage = async (pageLimit: number, pageOffset: number) => {
@@ -49,8 +75,8 @@ export async function listRecords(object: string, cmdOpts: any): Promise<void> {
   const records = await paginate(fetchPage, { limit, offset, all });
 
   if (format === 'quiet') {
-    for (const r of records) {
-      console.log(r.id?.record_id ?? '');
+    for (const record of records) {
+      console.log(record.id?.record_id ?? '');
     }
     return;
   }
@@ -60,7 +86,6 @@ export async function listRecords(object: string, cmdOpts: any): Promise<void> {
     return;
   }
 
-  // table or csv — flatten each record
   const flat = records.map(flattenRecord);
   outputList(flat, { format });
 }
@@ -157,22 +182,17 @@ export async function deleteRecord(object: string, recordId: string, cmdOpts: an
   console.error('Deleted.');
 }
 
-// ---------------------------------------------------------------------------
-// Internal helpers for subcommands not shared via people/companies
-// ---------------------------------------------------------------------------
-
-async function upsertRecord(object: string, cmdOpts: any): Promise<void> {
+export async function assertRecord(object: string, cmdOpts: any): Promise<void> {
   const client = new AttioClient(cmdOpts.apiKey, cmdOpts.debug);
   const format: OutputFormat = detectFormat(cmdOpts);
 
   const matchAttr: string | undefined = cmdOpts.match;
   if (!matchAttr) {
-    throw new Error('--match <attribute-slug> is required for upsert');
+    throw new Error('--match <attribute-slug> is required for assert');
   }
 
   const values = requireValues(await resolveValues(cmdOpts));
 
-  // CRITICAL: matching_attribute is a QUERY PARAMETER, not in the body
   const res = await client.put<{ data: any }>(
     `/objects/${encodeURIComponent(object)}/records?matching_attribute=${encodeURIComponent(matchAttr)}`,
     { data: { values } },
@@ -192,26 +212,40 @@ async function upsertRecord(object: string, cmdOpts: any): Promise<void> {
   outputSingle(flattenRecord(record), { format });
 }
 
-export async function searchRecords(object: string, query: string, cmdOpts: any): Promise<void> {
+export async function searchRecords(query: string, cmdOpts: any, objectScope?: string[]): Promise<void> {
   const client = new AttioClient(cmdOpts.apiKey, cmdOpts.debug);
   const format: OutputFormat = detectFormat(cmdOpts);
-  const limit = Number(cmdOpts.limit) || 25;
+  const limit = parseLimit(cmdOpts.limit, 25);
 
-  // CRITICAL: The actual API path is POST /v2/objects/records/search (NOT per-object!)
+  const optionObjects = (cmdOpts.object as string[] | undefined) ?? [];
+  let objects = objectScope && objectScope.length > 0 ? objectScope : optionObjects;
+
+  if (objects.length === 0) {
+    const objectsRes = await client.get<{ data: any[] }>('/objects');
+    objects = objectsRes.data
+      .map((obj) => obj.api_slug)
+      .filter((slug): slug is string => typeof slug === 'string' && slug.length > 0);
+  }
+
+  if (objects.length === 0) {
+    throw new Error('No objects available for search.');
+  }
+
   const res = await client.post<{ data: any[] }>(
     '/objects/records/search',
     {
       query,
-      objects: [object],
+      objects,
       request_as: { type: 'workspace' },
       limit,
     },
   );
+
   const records = res.data;
 
   if (format === 'quiet') {
-    for (const r of records) {
-      console.log(r.id?.record_id ?? '');
+    for (const record of records) {
+      console.log(record.id?.record_id ?? '');
     }
     return;
   }
@@ -225,6 +259,109 @@ export async function searchRecords(object: string, query: string, cmdOpts: any)
   outputList(flat, { format });
 }
 
+async function listRecordValues(object: string, recordId: string, cmdOpts: any): Promise<void> {
+  const client = new AttioClient(cmdOpts.apiKey, cmdOpts.debug);
+  const format: OutputFormat = detectFormat(cmdOpts);
+
+  const requestedAttributes = cmdOpts.attribute
+    ? [cmdOpts.attribute]
+    : (cmdOpts.attributes as string[] | undefined) ?? [];
+
+  let attributes = requestedAttributes;
+  if (attributes.length === 0) {
+    const attrRes = await client.get<{ data: any[] }>(
+      `/objects/${encodeURIComponent(object)}/attributes`,
+    );
+    attributes = attrRes.data
+      .map((attr) => attr.api_slug)
+      .filter((slug): slug is string => typeof slug === 'string' && slug.length > 0);
+  }
+
+  const showHistoric = cmdOpts.historic !== false;
+  const limit = parseLimit(cmdOpts.limit, 25);
+  const offset = parseOffset(cmdOpts.offset);
+  const all = cmdOpts.all ?? false;
+
+  const allValues: Array<Record<string, any>> = [];
+
+  for (const attribute of attributes) {
+    const fetchPage = async (pageLimit: number, pageOffset: number) => {
+      const params = new URLSearchParams();
+      params.set('show_historic', showHistoric ? 'true' : 'false');
+      params.set('limit', String(pageLimit));
+      params.set('offset', String(pageOffset));
+
+      const res = await client.get<{ data: any[] }>(
+        `/objects/${encodeURIComponent(object)}/records/${encodeURIComponent(recordId)}/attributes/${encodeURIComponent(attribute)}/values?${params.toString()}`,
+      );
+      return res.data;
+    };
+
+    const attributeValues = await paginate(fetchPage, { limit, offset, all });
+    for (const value of attributeValues) {
+      allValues.push({ attribute, ...value });
+    }
+  }
+
+  if (format === 'json') {
+    outputList(allValues, { format });
+    return;
+  }
+
+  const flat = allValues.map((value) => ({
+    attribute: value.attribute,
+    value: flattenValue([value]),
+    active_from: value.active_from || '',
+    active_until: value.active_until || '',
+    created_by_type: value.created_by_actor?.type || '',
+    created_by_id: value.created_by_actor?.id || '',
+  }));
+
+  outputList(flat, {
+    format,
+    columns: ['attribute', 'value', 'active_from', 'active_until', 'created_by_type', 'created_by_id'],
+    idField: 'attribute',
+  });
+}
+
+async function listRecordEntries(object: string, recordId: string, cmdOpts: any): Promise<void> {
+  const client = new AttioClient(cmdOpts.apiKey, cmdOpts.debug);
+  const format: OutputFormat = detectFormat(cmdOpts);
+
+  const limit = parseLimit(cmdOpts.limit, 25);
+  const offset = parseOffset(cmdOpts.offset);
+  const all = cmdOpts.all ?? false;
+
+  const entries = await paginate<any>(
+    async (pageLimit, pageOffset) => {
+      const params = new URLSearchParams();
+      params.set('limit', String(pageLimit));
+      params.set('offset', String(pageOffset));
+
+      const res = await client.get<{ data: any[] }>(
+        `/objects/${encodeURIComponent(object)}/records/${encodeURIComponent(recordId)}/entries?${params.toString()}`,
+      );
+      return res.data;
+    },
+    { limit, offset, all },
+  );
+
+  if (format === 'quiet') {
+    for (const entry of entries) {
+      console.log(entry.id?.entry_id ?? '');
+    }
+    return;
+  }
+
+  if (format === 'json') {
+    outputList(entries, { format, idField: 'id' });
+    return;
+  }
+
+  const flat = entries.map(flattenEntry);
+  outputList(flat, { format, idField: 'id' });
+}
+
 // ---------------------------------------------------------------------------
 // Commander registration
 // ---------------------------------------------------------------------------
@@ -234,7 +371,6 @@ export function register(program: Command): void {
     .command('records')
     .description('Manage records in any Attio object');
 
-  // --- list ---
   records
     .command('list')
     .description('List or query records for an object')
@@ -256,22 +392,18 @@ export function register(program: Command): void {
     .option('--offset <n>', 'Number of records to skip', '0')
     .option('--all', 'Auto-paginate to fetch all records')
     .action(async (object: string, _opts: any, cmd: Command) => {
-      const opts = cmd.optsWithGlobals();
-      await listRecords(object, opts);
+      await listRecords(object, cmd.optsWithGlobals());
     });
 
-  // --- get ---
   records
     .command('get')
     .description('Get a single record by ID')
     .argument('<object>', 'Object slug or ID')
     .argument('<record-id>', 'Record ID')
     .action(async (object: string, recordId: string, _opts: any, cmd: Command) => {
-      const opts = cmd.optsWithGlobals();
-      await getRecord(object, recordId, opts);
+      await getRecord(object, recordId, cmd.optsWithGlobals());
     });
 
-  // --- create ---
   records
     .command('create')
     .description('Create a new record')
@@ -284,11 +416,9 @@ export function register(program: Command): void {
       [] as string[],
     )
     .action(async (object: string, _opts: any, cmd: Command) => {
-      const opts = cmd.optsWithGlobals();
-      await createRecord(object, opts);
+      await createRecord(object, cmd.optsWithGlobals());
     });
 
-  // --- update ---
   records
     .command('update')
     .description('Update an existing record')
@@ -302,11 +432,9 @@ export function register(program: Command): void {
       [] as string[],
     )
     .action(async (object: string, recordId: string, _opts: any, cmd: Command) => {
-      const opts = cmd.optsWithGlobals();
-      await updateRecord(object, recordId, opts);
+      await updateRecord(object, recordId, cmd.optsWithGlobals());
     });
 
-  // --- delete ---
   records
     .command('delete')
     .description('Delete a record')
@@ -314,13 +442,11 @@ export function register(program: Command): void {
     .argument('<record-id>', 'Record ID')
     .option('-y, --yes', 'Skip confirmation prompt')
     .action(async (object: string, recordId: string, _opts: any, cmd: Command) => {
-      const opts = cmd.optsWithGlobals();
-      await deleteRecord(object, recordId, opts);
+      await deleteRecord(object, recordId, cmd.optsWithGlobals());
     });
 
-  // --- upsert ---
   records
-    .command('upsert')
+    .command('assert')
     .description('Create or update a record by matching attribute')
     .argument('<object>', 'Object slug or ID')
     .requiredOption('--match <attribute-slug>', 'Attribute slug to match on (required)')
@@ -332,19 +458,63 @@ export function register(program: Command): void {
       [] as string[],
     )
     .action(async (object: string, _opts: any, cmd: Command) => {
-      const opts = cmd.optsWithGlobals();
-      await upsertRecord(object, opts);
+      await assertRecord(object, cmd.optsWithGlobals());
     });
 
-  // --- search ---
+  records
+    .command('upsert')
+    .description('Alias for records assert')
+    .argument('<object>', 'Object slug or ID')
+    .requiredOption('--match <attribute-slug>', 'Attribute slug to match on (required)')
+    .option('--values <json>', 'JSON string or @file of attribute values')
+    .option(
+      '--set <key=value>',
+      'Set an attribute value (repeatable)',
+      (val: string, prev: string[]) => [...prev, val],
+      [] as string[],
+    )
+    .action(async (object: string, _opts: any, cmd: Command) => {
+      await assertRecord(object, cmd.optsWithGlobals());
+    });
+
   records
     .command('search')
-    .description('Full-text search for records within an object')
-    .argument('<object>', 'Object slug or ID (e.g. companies, people)')
+    .description('Search records across one or more objects')
     .argument('<query>', 'Search query string')
+    .option(
+      '--object <object>',
+      'Object slug or ID to scope search (repeatable). Defaults to all objects',
+      (val: string, prev: string[]) => [...prev, val],
+      [] as string[],
+    )
     .option('--limit <n>', 'Maximum results to return', '25')
-    .action(async (object: string, query: string, _opts: any, cmd: Command) => {
-      const opts = cmd.optsWithGlobals();
-      await searchRecords(object, query, opts);
+    .action(async (query: string, _opts: any, cmd: Command) => {
+      await searchRecords(query, cmd.optsWithGlobals());
+    });
+
+  records
+    .command('values')
+    .description('List current and historic attribute values for a record')
+    .argument('<object>', 'Object slug or ID')
+    .argument('<record-id>', 'Record ID')
+    .option('--attribute <attribute>', 'Only include a single attribute slug')
+    .option('--limit <n>', 'Max values per page', '25')
+    .option('--offset <n>', 'Starting offset', '0')
+    .option('--all', 'Fetch all pages')
+    .option('--no-historic', 'Exclude historic values and show active values only')
+    .action(async (object: string, recordId: string, _opts: any, cmd: Command) => {
+      await listRecordValues(object, recordId, cmd.optsWithGlobals());
+    });
+
+  records
+    .command('entries')
+    .description('List list entries where this record is the parent')
+    .argument('<object>', 'Object slug or ID')
+    .argument('<record-id>', 'Record ID')
+    .option('--limit <n>', 'Max entries per page', '25')
+    .option('--offset <n>', 'Starting offset', '0')
+    .option('--all', 'Fetch all pages')
+    .action(async (object: string, recordId: string, _opts: any, cmd: Command) => {
+      await listRecordEntries(object, recordId, cmd.optsWithGlobals());
     });
 }

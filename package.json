@@ -1,0 +1,30 @@
+{
+  "name": "attio-cli",
+  "version": "0.1.0",
+  "description": "CLI for the Attio CRM API. Built for scripts, agents, and humans who prefer terminals.",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "attio": "./dist/attio.js"
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsx bin/attio.ts"
+  },
+  "dependencies": {
+    "commander": "^12.0.0",
+    "chalk": "^5.3.0",
+    "cli-table3": "^0.6.0",
+    "dotenv": "^16.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "tsup": "^8.0.0",
+    "tsx": "^4.0.0",
+    "@types/node": "^20.0.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

@@ -101,7 +101,7 @@ export function register(program: Command): void {
       const client = new AttioClient(opts.apiKey, opts.debug);
       const format: OutputFormat = detectFormat(opts);
 
-      const resolvedValues = requireValues(await resolveValues({ values: opts.values, set: opts.set }));
+      const resolvedValues = await resolveValues({ values: opts.values, set: opts.set });
 
       const body: any = {
         data: {
@@ -135,7 +135,7 @@ export function register(program: Command): void {
       const client = new AttioClient(opts.apiKey, opts.debug);
       const format: OutputFormat = detectFormat(opts);
 
-      const resolvedValues = requireValues(await resolveValues({ values: opts.values, set: opts.set }));
+      const resolvedValues = await resolveValues({ values: opts.values, set: opts.set });
 
       const body: any = {
         data: {

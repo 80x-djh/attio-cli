@@ -120,6 +120,7 @@ attio config claude-md >> CLAUDE.md
 | **Lists** | |
 | `attio lists list` | List all lists |
 | `attio lists get <id>` | Get a specific list |
+| `attio lists create` | Create a new list |
 | **Entries** | |
 | `attio entries list <list>` | List entries in a list |
 | `attio entries get <list> <id>` | Get a specific entry |
